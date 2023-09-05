@@ -1,0 +1,104 @@
+// gRPC Adapter v1.10.6. Modifed
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "tech.lar.sp.adpt.grpc.api.v1";
+
+message LoRaModulation {
+    enum SpreadFactor {
+        SF7 = 0;
+        SF8 = 1;
+        SF9 = 2;
+        SF10 = 3;
+        SF11 = 4;
+        SF12 = 5;
+        MULTI = 6;
+    }
+    enum Bandwidth {
+        BW_500KHZ = 0;
+        BW_250KHZ = 1;
+        BW_125KHZ = 2;
+        BW_62K5HZ = 3;
+        BW_31K2HZ = 4;
+        BW_15K6HZ = 5;
+        BW_7K8HZ = 6;
+    }
+    enum CodeRate {
+        CR_LORA_4_5 = 0;
+        CR_LORA_4_6 = 1;
+        CR_LORA_4_7 = 2;
+        CR_LORA_4_8 = 3;
+    }
+
+    CodeRate codeRate = 1;
+    SpreadFactor spreadFactor = 2;
+    Bandwidth bandwidth = 3;
+}
+
+message FSKModulation {
+    int32 dataRate = 1;
+}
+
+message UplinkMessage {
+    string devEui = 1;
+    string gatewayEui = 2;
+    int64 time = 3;
+    int32 frameCounter = 4;
+    bool confirmed = 5;
+    int32 frequency = 6;
+    oneof modulation {
+        LoRaModulation loraModulation = 7;
+        FSKModulation fskModulation = 8;
+    }
+    float snr = 9;
+    float rssi = 10;
+    int32 fport = 11;
+    bytes frmpayload = 12;
+}
+
+message DownlinkMessage {
+    repeated string devEui = 1;
+    string token = 2;
+    bool confirmed = 3;
+    int32 fport = 4;
+    bytes frmpayload = 5;
+    bool enableStatusReplies = 6;
+}
+
+enum DownlinkMessageStatus {
+    UNDEFINED = 0;
+    ERROR = 1;
+    NOT_AUTHENTICATED = 2;
+    ACCEPTED = 3;
+    REJECTED = 4;
+    ON_AIR = 6;
+    LOST = 7;
+    DELIVERED = 8;
+}
+
+message PingMessage {
+    int32 id = 1;
+}
+
+message Request {
+    string messageId = 1;
+    oneof payload {
+        google.protobuf.Empty pingMessage = 2;
+        DownlinkMessage downlinkMessage = 3;
+    }
+}
+
+message Response {
+    string correlationId = 1;
+    oneof payload {
+        google.protobuf.Empty pingMessage = 2;
+        DownlinkMessageStatus downlinkMessageStatus = 3;
+        UplinkMessage uplinkMessage = 4;
+    }
+}
+
+service GrpcAdapter {
+    rpc streamData (stream Request) returns (stream Response);
+}

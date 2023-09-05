@@ -1,0 +1,24 @@
+// Backbone API v1.9.3. Modifed
+syntax = "proto3";
+
+package backbone.types;
+
+option java_multiple_files = true;
+option java_package = "tech.lar.sp.backbone.api.types";
+
+enum LoraClass {
+    A = 0;
+    B = 1;
+    C = 2;
+}
+
+enum ActivationType {
+    OTAA = 0;
+    ABP = 1;
+}
+
+enum RxWindow {
+    UNDEFINED = 0;
+    RX1 = 1;
+    RX2 = 2;
+}
